@@ -1,0 +1,92 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+install.packages(c('XML'))
+```
+
+Download our stuff!
+
+```{r}
+library(httr)
+library(XML)
+
+# download website
+#url <- "https://dl.acm.org/citation.cfm?id=3017680"
+url <- "https://dl.acm.org/tab_about.cfm?id=3017680&type=proceeding&sellOnline=0&parent_id=3017680&parent_type=proceeding&title=Proceedings%20of%20the%202017%20ACM%20SIGCSE%20Technical%20Symposium%20on%20Computer%20Science%20Education&toctitle=The%2048th%20ACM%20Technical%20Symposium%20on%20Computer%20Science%20Education&tocissue_date=&notoc=0&usebody=tabbody&tocnext_id=&tocnext_str=&tocprev_id=&tocprev_str=&toctype=conference&_cf_containerId=cf_layoutareaprox&_cf_nodebug=true&_cf_nocache=true&_cf_clientid=327ECE89569D1B040F23478AF6459417&_cf_rc=1"
+userAgent <- "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36"
+response <- GET(url, add_headers('user-agent' = userAgent))
+
+#response
+stop_for_status(response)
+
+#cat(content(response, "text"), "\n")
+
+# parse HTML
+doc <- htmlTreeParse(response, useInternalNodes = T)
+
+# get the table of contents
+tocNodes <- getNodeSet(doc, "//tr")
+```
+
+
+
+Start extracting the content we want!
+
+```{r}
+
+#nodeIdx <- getNodeSet(doc, "count(//tr//strong/text()[contains(., 'Papers:')])")
+#nodeIdx <- as.numeric(nodeIdx)
+
+# utilities
+pathPrefix <- "//tr[not(contains(.//a/text(), 'Abstract Only'))]"
+#pathPrefix <- '//tr'
+
+nodesToV <- function(nodes, t=toString) unlist(lapply(nodes, t), use.names=F)
+
+dataAtPath <- function(xpath, t=toString) {
+  #nodesToV(getNodeSet(doc, paste(pathPrefix, xpath, sep='')), t)
+  nodesToV(getNodeSet(doc, paste(pathPrefix, xpath, sep='')), t)
+}
+
+fixUpList <- function(l) l[1:nMax]
+
+# extract content
+
+titleNodes <- dataAtPath("//a[contains(@href, 'citation.cfm?id=')]/text()", xmlValue)
+urlNodes <- dataAtPath("//a[contains(@href, 'citation.cfm?id=')]/attribute::href", toString)
+doiNodes <- dataAtPath("//a[@title='DOI']/text()", xmlValue)
+pdfLinkNodes <- dataAtPath("//a[@name='FullTextPDF']/attribute::href", toString)
+
+nMax <- min(sapply(list(titleNodes, urlNodes, doiNodes, pdfLinkNodes), length))
+#print(sapply(list(titleNodes, urlNodes, doiNodes, pdfLinkNodes), length))
+
+cat('Found', nMax, 'papers.')
+
+# putting all data together
+papers <- data.frame(
+  title=fixUpList(titleNodes),
+  url=fixUpList(urlNodes),
+  doi=fixUpList(doiNodes),
+  pdfLinks=fixUpList(pdfLinkNodes)
+)
+```
+
+
+```{R}
+# investigate what we got
+#dim(papers)
+
+# TODO: url + DOI start mismatching at around page 14!
+# TODO: the last full paper should be "From Blocks to Text and Back: Programming Patterns in a Dual-Modality Environment" (following are panels)
+# TODO: properly cross-reference the other data
+
+papers
+#papers[(nMax-50):nMax,]
+
+
+setwd(choose.dir())
+getwd()
+```
+
