@@ -1,0 +1,122 @@
+---
+title: "Discord Test #1"
+output: html_notebook
+---
+
+
+
+```{r}
+install.packages(c('XML', 'gridBase'))
+```
+
+Download our stuff!
+
+```{r}
+library(httr)
+library(XML)
+
+# download website
+#url <- "https://dl.acm.org/citation.cfm?id=3017680"
+fname <- "discord-messages1.html"
+fpath <- file.path(getwd(), fname)
+#file <- system.file(fpath, mustWork=T)
+#userAgent <- "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36"
+#response <- GET(url, add_headers('user-agent' = userAgent))
+
+#response
+#stop_for_status(response)
+
+#cat(content(response, "text"), "\n")
+
+# parse HTML
+#doc <- htmlTreeParse(response, useInternalNodes = T)
+doc <- htmlTreeParse(fpath, useInternalNodes = T)
+
+# get the table of contents
+#tocNodes <- getNodeSet(doc, "//tr")
+```
+
+
+
+Start extracting the content we want!
+
+```{r}
+
+#nodeIdx <- getNodeSet(doc, "count(//tr//strong/text()[contains(., 'Papers:')])")
+#nodeIdx <- as.numeric(nodeIdx)
+
+# utilities
+msgPath <- "//div[contains(@class, 'message-group')]"
+#pathPrefix <- '//tr'
+
+nodesToV <- function(nodes, t=toString) unlist(lapply(nodes, t), use.names=F)
+
+dataAtPath <- function(xpath, t=toString) {
+  #nodesToV(getNodeSet(doc, paste(pathPrefix, xpath, sep='')), t)
+  getNodeSet(doc, paste(pathPrefix, xpath, sep=''))
+}
+
+# apply to lists of lists
+# see: https://stackoverflow.com/a/31561282
+getStringNodes <- function(nodes, xpath)
+  unlist(lapply(lapply(nodes, getNodeSet, xpath), sapply, xmlValue))
+
+fixUpList <- function(l, t=tSotring) nodesToV(l[1:nMax], t)
+
+# extract content
+msgNodes <- getNodeSet(doc, msgPath)
+nMessages = length(msgNodes)
+cat('Found', nMessages, 'messages.')
+
+
+#unames <- lapply(lapply(msgNodes, getNodeSet, "//strong[contains(@class, 'user-name')]/text()"), head, 1)
+unames <- getStringNodes(msgNodes, "//strong[contains(@class, 'user-name')]/text()")
+#unames <- lapply(msgNodes, getStringNodes, "//strong[contains(@class, 'user-name')]/text()")
+
+
+
+#print(sapply(list(titleNodes, urlNodes, doiNodes, pdfLinkNodes), length))
+
+# putting all data together
+#messageData <- data.frame(
+  #title=fixUpList(titleNodes),
+  #url=fixUpList(urlNodes),
+  #doi=fixUpList(doiNodes),
+  #pdfLinks=fixUpList(pdfLinkNodes)
+#)
+```
+
+```{r}
+# do some plotting!
+library(grid)
+library(gridBase)
+
+
+
+plotNames <- function(xList) {
+  x <- sort(ceiling(prop.table(table(xList)) * length(xList)/100))
+  
+  midpts <- barplot(x, axisnames = F, ylab='Messages')
+  #midpts <- barplot(x, names.arg="", height=50, width=10, space = 10)
+  
+  #text(x=midpts, y=-2, names(x), cex=0.8, srt=45, xpd=TRUE)
+  #axis(1, at = midpts, labels=names(x), cex.axis=0.4)
+  
+  # ## Plot, but suppress the labels
+  # 
+  # ## Use grid to add the labels    
+  vps <- baseViewports()
+  pushViewport(vps$inner, vps$figure, vps$plot)
+  # 
+  grid.text(names(x),
+     x = unit(midpts, "native"), y=unit(-1, "lines"),
+     just="right", rot=50)
+   
+  popViewport(3)
+}
+
+#table(unames)
+
+plotNames(unames)
+```
+
