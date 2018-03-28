@@ -11,7 +11,11 @@ knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 
 1. 從 [gitbook的week2](https://pecu.gitbooks.io/r_/content/week2.html) 開始探索。
 1. 因為常常在 Discord 上面看到奇怪的 `%>%`，所以決定先讀 `在R中使用管線(Pipe)處理資料流`
-1. 就先直接 copy + paste 上面的 example
+1. 跑助教的爬蟲範例
+1. 自己爬一個！
+
+# 在R中使用管線(Pipe)處理資料流 [教學範例]
+* 就先直接 copy + paste 上面的 example
 
 ```{r}
 log(sum(exp(my.var)), exp(1))
@@ -59,6 +63,10 @@ my.var %>% exp %>% sum %>% log(exp(1))
 ```
 
 * 啊！新洞察：所以用 `%>%` 把函數裡面的參數寫在函數的前面呢。。。
+
+
+# 跑助教的爬蟲範例
+
 * 先直接跑 助教 [提供的程式碼](https://github.com/NTU-CSX-DataScience/106-2RSampleCode/blob/master/week_2/task_2_example/PChomeRCrawler.Rmd)：
 
 ```{r}
@@ -87,7 +95,9 @@ length(raw$cateId)
 ```
 
 * 成功了！
-* 我再試一次：
+
+
+# 自己爬一個！
 
 ```{r}
 url <- "https://www.rdocumentation.org/packages/base/versions/3.4.3/topics/sum"

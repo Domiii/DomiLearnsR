@@ -127,8 +127,14 @@ $(document).ready(function () {
 <ol style="list-style-type: decimal">
 <li>從 <a href="https://pecu.gitbooks.io/r_/content/week2.html">gitbook的week2</a> 開始探索。</li>
 <li>因為常常在 Discord 上面看到奇怪的 <code>%&gt;%</code>，所以決定先讀 <code>在R中使用管線(Pipe)處理資料流</code></li>
-<li>就先直接 copy + paste 上面的 example</li>
+<li>跑助教的爬蟲範例</li>
+<li>自己爬一個！</li>
 </ol>
+<div id="rpipe-" class="section level1">
+<h1>在R中使用管線(Pipe)處理資料流 [教學範例]</h1>
+<ul>
+<li>就先直接 copy + paste 上面的 example</li>
+</ul>
 <pre class="r"><code>log(sum(exp(my.var)), exp(1))</code></pre>
 <pre><code>## Error in eval(expr, envir, enclos): object 'my.var' not found</code></pre>
 <ul>
@@ -164,6 +170,11 @@ my.var %&gt;% exp %&gt;% sum %&gt;% log(exp(1))</code></pre>
 <pre><code>## [1] 4</code></pre>
 <ul>
 <li>啊！新洞察：所以用 <code>%&gt;%</code> 把函數裡面的參數寫在函數的前面呢。。。</li>
+</ul>
+</div>
+<div class="section level1">
+<h1>跑助教的爬蟲範例</h1>
+<ul>
 <li>先直接跑 助教 <a href="https://github.com/NTU-CSX-DataScience/106-2RSampleCode/blob/master/week_2/task_2_example/PChomeRCrawler.Rmd">提供的程式碼</a>：</li>
 </ul>
 <pre class="r"><code>library(httr)
@@ -205,8 +216,10 @@ head(raw$name)</code></pre>
 <pre><code>## [1] 20</code></pre>
 <ul>
 <li>成功了！</li>
-<li>我再試一次：</li>
 </ul>
+</div>
+<div class="section level1">
+<h1>自己爬一個！</h1>
 <pre class="r"><code>url &lt;- &quot;https://www.rdocumentation.org/packages/base/versions/3.4.3/topics/sum&quot;
 res = GET(url)
 res_json = content(res)
@@ -215,6 +228,7 @@ raw = (data.frame(do.call(rbind,res_json$prods)))</code></pre>
 <ul>
 <li>看不懂 o_X</li>
 </ul>
+</div>
 
 
 
