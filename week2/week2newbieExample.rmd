@@ -1,0 +1,99 @@
+---
+title: "hw2"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+1. 從 [gitbook的week2](https://pecu.gitbooks.io/r_/content/week2.html) 開始探索。
+1. 因為常常在 Discord 上面看到奇怪的 `%>%`，所以決定先讀 `在R中使用管線(Pipe)處理資料流`
+1. 就先直接 copy + paste 上面的 example
+
+```{r}
+log(sum(exp(my.var)), exp(1))
+```
+
+* 好煩。。。 為什麼他們提供不會 work 的程式碼？
+* 問了同學：其實 `my.var` 只是『任何的變數』，應該要自己定義一個才能跑這程式碼，再試一遍。。。
+
+
+```{r}
+my.var <- 7
+log(sum(exp(my.var)), exp(1))
+```
+
+* 不知道 `sum` 是什麼，所以查了一下：發現說－要有多個項目的向量才有價值：
+
+```{r}
+sum(c(13, 14))
+```
+
+* 繼續玩文章內容。。。
+
+```{r}
+my.var <- 4
+my.var <- exp(my.var)
+my.var <- sum(my.var)
+log(my.var, exp(1))
+```
+
+
+```{r}
+install.packages("magrittr")
+library(magrittr)
+```
+
+```{r}
+my.var <- 4
+my.var %>% exp()
+```
+
+
+```{r}
+my.var <- 4
+my.var %>% exp %>% sum %>% log(exp(1))
+```
+
+* 啊！新洞察：所以用 `%>%` 把函數裡面的參數寫在函數的前面呢。。。
+* 先直接跑 助教 [提供的程式碼](https://github.com/NTU-CSX-DataScience/106-2RSampleCode/blob/master/week_2/task_2_example/PChomeRCrawler.Rmd)：
+
+```{r}
+library(httr)
+
+url <- "http://ecshweb.pchome.com.tw/search/v3.3/all/results?q=sony&page=1&sort=rnk/dc"
+res = GET(url)
+res_json = content(res)
+raw = (data.frame(do.call(rbind,res_json$prods)))
+
+head(raw$name)
+```
+
+* 感覺成功
+* 跑了之後，我想了解 `CateId`  的長度
+
+```{r}
+length(raw$CateId)
+```
+
+* 不成功 o_X
+* 得到了洞察：同學一觀察 data frame，就發現 `CateId` 應該要寫成 `cateId`，大小寫真的好重要。。。
+
+```{r}
+length(raw$cateId)
+```
+
+* 成功了！
+* 我再試一次：
+
+```{r}
+url <- "https://www.rdocumentation.org/packages/base/versions/3.4.3/topics/sum"
+res = GET(url)
+res_json = content(res)
+raw = (data.frame(do.call(rbind,res_json$prods)))
+```
+
+* 看不懂 o_X

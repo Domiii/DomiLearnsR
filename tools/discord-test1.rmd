@@ -30,7 +30,7 @@ fpath <- file.path(getwd(), fname)
 
 # parse HTML
 #doc <- htmlTreeParse(response, useInternalNodes = T)
-doc <- htmlTreeParse(fpath, useInternalNodes = T)
+doc <- htmlTreeParse(fpath, useInternalNodes = T, encoding = 'utf-8')
 
 # get the table of contents
 #tocNodes <- getNodeSet(doc, "//tr")
@@ -66,11 +66,12 @@ fixUpList <- function(l, t=tSotring) nodesToV(l[1:nMax], t)
 # extract content
 msgNodes <- getNodeSet(doc, msgPath)
 nMessages = length(msgNodes)
-cat('Found', nMessages, 'messages.')
 
 
 #unames <- lapply(lapply(msgNodes, getNodeSet, "//strong[contains(@class, 'user-name')]/text()"), head, 1)
 unames <- getStringNodes(msgNodes, "//strong[contains(@class, 'user-name')]/text()")
+
+cat('Found', nMessages, 'messages by', length(unique(unames)), 'users')
 #unames <- lapply(msgNodes, getStringNodes, "//strong[contains(@class, 'user-name')]/text()")
 
 
@@ -114,8 +115,6 @@ plotNames <- function(xList) {
    
   popViewport(3)
 }
-
-#table(unames)
 
 plotNames(unames)
 ```
